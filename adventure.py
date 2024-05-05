@@ -65,22 +65,22 @@ class TextAdventure:
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
-
-    
     def go(self, direction):
         room = self.rooms[self.current_room]
         if direction in room['exits']:
             next_room = room['exits'][direction]
-            if next_room not in self.visited_rooms:
+            if next_room not in self.visited_rooms or next_room == self.current_room:
                 if self.current_room in self.visited_rooms:
-                    self.visited_rooms.remove(self.current_room)  
-                self.visited_rooms.add(next_room)  
+                    self.visited_rooms.remove(self.current_room)
+                self.visited_rooms.add(next_room)
                 self.current_room = next_room
                 self.display_room_info()
             else:
                 print("You've already been in this room. Try another direction or backtrack.")
         else:
             print(f"There's no way to go {direction}.")
+    
+    
     
     def get(self, item):
         room = self.rooms[self.current_room]
@@ -129,19 +129,3 @@ if __name__ == "__main__":
         sys.exit("Usage: python3 adventure.py [map filename]")
     game = TextAdventure(sys.argv[1])
     game.play()
-
-
-
-def go(self, direction):
-    room = self.rooms[self.current_room]
-    if direction in room['exits']:
-        next_room = room['exits'][direction]
-        if next_room not in self.visited_rooms:
-            self.visited_rooms.remove(self.current_room)  # Remove the current room from visited_rooms
-            self.visited_rooms.add(next_room)  # Add the new room to visited_rooms
-            self.current_room = next_room
-            self.display_room_info()
-        else:
-            print("You've already been in this room. Try another direction or backtrack.")
-    else:
-        print(f"There's no way to go {direction}.")
