@@ -6,7 +6,7 @@ class TextAdventure:
         self.map_file = map_file
         self.current_room = None
         self.inventory = []
-        self.visited_rooms = set()  # Set to keep track of visited rooms
+        self.visited_rooms = set()
         self.load_map()
 
     def load_map(self):
@@ -61,7 +61,7 @@ class TextAdventure:
             print("Goodbye!")
             sys.exit()
         elif command in self.rooms[self.current_room]['exits']:
-            self.go(command)  # Treat direction as a command to go
+            self.go(command)
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
@@ -69,8 +69,8 @@ class TextAdventure:
         room = self.rooms[self.current_room]
         if direction in room['exits']:
             next_room = room['exits'][direction]
-            if next_room not in self.visited_rooms:  # Check if the room has been visited
-                self.visited_rooms.add(self.current_room)  # Mark the current room as visited
+            if next_room not in self.visited_rooms:
+                self.visited_rooms.add(self.current_room)
                 self.current_room = next_room
                 self.display_room_info()
             else:
