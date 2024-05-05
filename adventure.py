@@ -81,10 +81,11 @@ class TextAdventure:
     def go(self, direction):
         room = self.rooms[self.current_room]
         if direction in room['exits']:
-            next_room = room['exits'][direction].strip()  
-            next_room_normalized = ' '.join(next_room.split()) 
+            next_room = room['exits'][direction]
+            next_room_normalized = ' '.join(next_room.strip().split())  # Strip leading/trailing whitespace and replace all whitespace with a single space
             if next_room_normalized in self.rooms:
-                if next_room_normalized != self.current_room:
+                next_room_normalized_current = ' '.join(self.current_room.split())  # Normalize the current room name
+                if next_room_normalized != next_room_normalized_current:
                     if next_room_normalized not in self.visited_rooms:
                         self.visited_rooms.add(next_room_normalized)
                         self.current_room = next_room_normalized
