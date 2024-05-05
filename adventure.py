@@ -15,14 +15,14 @@ class TextAdventure:
                 self.validate_map(game_map)
                 self.rooms = {room['name']: room for room in game_map['rooms']}
                 self.current_room = game_map['start']
-            except json.JSONDecodeError:
-                sys.exit("Invalid JSON format in map file.")
-            except KeyError:
-                sys.exit("Map file is missing required keys.")
+            except (json.JSONDecodeError, KeyError) as e:
+                sys.exit(f"Error loading map: {e}")
 
     def validate_map(self, game_map):
-        if 'start' not in game_map or 'rooms' not in game_map:
-            sys.exit("Map file is missing required keys.")
+        required_keys = ['start', 'rooms']
+        for key in required_keys:
+            if key not in game_map:
+                sys.exit(f"Map file is missing required key: {key}")
 
         room_names = set()
         for room in game_map['rooms']:
@@ -52,7 +52,7 @@ class TextAdventure:
             self.get(command.split(' ', 1)[1])
         elif command.startswith('drop '):
             self.drop(command.split(' ', 1)[1])
-        elif command == 'inventory' or command == 'inv':
+        elif command in ('inventory', 'inv'):
             self.show_inventory()
         elif command == 'help':
             self.show_help()
