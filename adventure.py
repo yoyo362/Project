@@ -48,7 +48,7 @@ class TextAdventure:
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
-        print(f"> {room['name']}\n\n{room['desc']}\n")
+        print(f"> {room['name'].strip()}\n\n{room['desc']}\n")
         if 'items' in room:
             print("Items:", ', '.join(room['items']))
         print("\nExits:", ', '.join(room['exits']))
@@ -78,21 +78,25 @@ class TextAdventure:
     def go(self, direction):
         room = self.rooms[self.current_room]
         if direction in room['exits']:
-            next_room = room['exits'][direction]
-            if next_room != self.current_room:
-                if next_room not in self.visited_rooms:
-                    self.visited_rooms.add(next_room)
-                    self.current_room = next_room
-                    self.display_room_info()
+            next_room = room['exits'][direction].strip()  # Strip leading/trailing whitespace from exit room name
+            next_room_normalized = ' '.join(next_room.split())  # Replace all whitespace with a single space
+            if next_room_normalized in self.rooms:
+                if next_room_normalized != self.current_room:
+                    if next_room_normalized not in self.visited_rooms:
+                        self.visited_rooms.add(next_room_normalized)
+                        self.current_room = next_room_normalized
+                        self.display_room_info()
+                    else:
+                        print("You've already been in this room. Try another direction or backtrack.")
                 else:
-                    print("You've already been in this room. Try another direction or backtrack.")
+                    if self.visited_rooms:
+                        prev_room = self.visited_rooms.pop()
+                        self.current_room = prev_room
+                        self.display_room_info()
+                    else:
+                        print("You're back where you started.")
             else:
-                if self.visited_rooms:
-                    prev_room = self.visited_rooms.pop()
-                    self.current_room = prev_room
-                    self.display_room_info()
-                else:
-                    print("You're back where you started.")
+                print(f"There's no way to go {direction}.")
         else:
             print(f"There's no way to go {direction}.")
     
