@@ -40,10 +40,10 @@ class TextAdventure:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
                 exit_rooms[exit_direction] = exit_room_normalized
 
-                if exit_room_normalized not in room_names and all(exit_room_normalized != ' '.join((r.strip() + ' ').split()) for r in room_names) and not exit_room_normalized.isdigit() and exit_room_normalized != '':
+                if exit_room_normalized not in room_names and all(exit_room_normalized != ' '.join(r.replace('  ', ' ').strip().split()) for r in room_names) and not exit_room_normalized.isdigit() and exit_room_normalized != '':
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
-        if ' '.join(game_map['start'].strip().split()) not in room_names:
+        if ' '.join(game_map['start'].replace('  ', ' ').strip().split()) not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
     def display_room_info(self):
