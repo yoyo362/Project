@@ -9,31 +9,36 @@ class TextAdventure:
         self.load_map()
 
     def load_map(self):
-        with open(self.map_file, 'r') as f:
-            try:
+        try:
+            with open(self.map_file, 'r') as f:
                 game_map = json.load(f)
-                self.validate_map(game_map)
-                self.rooms = {room['name']: room for room in game_map['rooms']}
-                self.current_room = game_map['start']
-            except json.JSONDecodeError:
-                sys.exit("Invalid JSON format in map file.")
-            except KeyError:
-                sys.exit("Map file is missing required keys.")
+            self.validate_map(game_map)
+            self.rooms = {room['name']: room for room in game_map['rooms']}
+            self.current_room = game_map['start']
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            print(f"Error loading map file: {e}")
+            sys.exit(1)
 
     def validate_map(self, game_map):
         if 'start' not in game_map or 'rooms' not in game_map:
-            sys.exit("Map file is missing required keys.")
+            raise ValueError("Map file is missing required keys.")
 
         room_names = set()
         for room in game_map['rooms']:
             if room['name'] in room_names:
-                sys.exit("Duplicate room names found in map file.")
+                raise ValueError("Duplicate room names found in map file.")
             room_names.add(room['name'])
 
-        for room in game_map['rooms']:
             for exit_room in room['exits'].values():
                 if exit_room not in room_names:
-                    sys.exit(f"Invalid exit room '{exit_room}' in map file.")
+                    raise ValueError(f"Invalid exit room '{exit_room}' in map file.")
+
+            # Check for ambiguous exits
+            exit_counts = {}
+            for exit_name, exit_room in room['exits'].items():
+                exit_counts[exit_room] = exit_counts.get(exit_room, 0) + 1
+                if exit_counts[exit_room] > 1:
+                    raise ValueError(f"Ambiguous exits to '{exit_room}' in room '{room['name']}'")
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
@@ -44,7 +49,7 @@ class TextAdventure:
         print("\nWhat would you like to do?")
 
     def process_command(self, command):
-        parts = command.split(' ')
+        parts = command.lower().split(' ')
         action = parts[0]
 
         if action == 'start':
@@ -58,7 +63,7 @@ class TextAdventure:
             else:
                 print("Please specify a direction.")
         elif action in ['north', 'south', 'east', 'west']:
-            self.go(action)  # Call go method directly with the direction
+            self.go(action)
         elif action == 'get':
             if len(parts) > 1:
                 item = ' '.join(parts[1:])
@@ -71,15 +76,19 @@ class TextAdventure:
             self.show_help()
         elif action == 'quit':
             print("Goodbye!")
-            sys.exit()
+            sys.exit(0)
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
     def go(self, direction):
         room = self.rooms[self.current_room]
-        if direction in room['exits']:
-            self.current_room = room['exits'][direction]
-            self.display_room_info()
+        if 'exits' in room and direction in room['exits']:
+            next_room = room['exits'][direction]
+            if next_room == self.current_room:
+                print("You can't go that way, it leads back to the same room.")
+            else:
+                self.current_room = next_room
+                self.display_room_info()
         else:
             print(f"There's no way to go {direction}.")
 
@@ -112,11 +121,13 @@ class TextAdventure:
     def play(self):
         self.display_room_info()
         while True:
-            command = input(">> ")
-            self.process_command(command)
+            command = input(">> ").strip()
+            if command:
+                self.process_command(command)
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        sys.exit("Usage: python3 adventure.py [map filename]")
+        print("Usage: python3 adventure.py [map filename]")
+        sys.exit(1)
     game = TextAdventure(sys.argv[1])
     game.play()
