@@ -23,7 +23,6 @@ class TextAdventure:
             except KeyError:
                 sys.exit("Map file is missing required keys.")
 
-            
     def validate_map(self, game_map):
         if 'start' not in game_map or 'rooms' not in game_map:
             sys.exit("Map file is missing required keys.")
@@ -44,6 +43,10 @@ class TextAdventure:
                 exit_rooms.add(exit_room_normalized)
                 if exit_room_normalized not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
+
+        if ' '.join(game_map['start'].strip().split()) not in room_names:
+            sys.exit(f"Invalid start room '{game_map['start']}' in map file.")            
+
 
 
     def display_room_info(self):
@@ -78,8 +81,8 @@ class TextAdventure:
     def go(self, direction):
         room = self.rooms[self.current_room]
         if direction in room['exits']:
-            next_room = room['exits'][direction].strip()  # Strip leading/trailing whitespace from exit room name
-            next_room_normalized = ' '.join(next_room.split())  # Replace all whitespace with a single space
+            next_room = room['exits'][direction].strip()  
+            next_room_normalized = ' '.join(next_room.split()) 
             if next_room_normalized in self.rooms:
                 if next_room_normalized != self.current_room:
                     if next_room_normalized not in self.visited_rooms:
