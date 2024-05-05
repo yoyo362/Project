@@ -9,8 +9,6 @@ class TextAdventure:
         self.visited_rooms = set()
         self.load_map()
 
-
-
     def load_map(self):
         with open(self.map_file, 'r') as f:
             try:
@@ -35,21 +33,20 @@ class TextAdventure:
                 sys.exit("Duplicate room names found in map file.")
             room_names.add(room_name_normalized)
 
-            exit_rooms = set()
-            for exit_room in room['exits'].values():
+            exit_rooms = {}
+            for exit_direction, exit_room in room['exits'].items():
                 exit_room_normalized = ' '.join(exit_room.strip().split())  # Strip leading/trailing whitespace, replace all whitespace with a single space
-                if exit_room_normalized in exit_rooms:
+                if exit_room_normalized in exit_rooms.values():
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
-                exit_rooms.add(exit_room_normalized)
+                exit_rooms[exit_direction] = exit_room_normalized
 
                 # Check if the normalized exit room name exists in the set of room names
                 # or if it matches a room name after stripping leading/trailing whitespace
-                if exit_room_normalized not in room_names and all(exit_room_normalized != ' '.join(r.strip().split()) for r in room_names):
+                if exit_room_normalized not in room_names and all(exit_room_normalized != ' '.join((r.strip() + ' ').split()) for r in room_names) and not exit_room_normalized.isdigit():
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         if ' '.join(game_map['start'].strip().split()) not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
-
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
@@ -105,7 +102,7 @@ class TextAdventure:
                 print(f"There's no way to go {direction}.")
         else:
             print(f"There's no way to go {direction}.")
-    
+
     def get(self, item):
         room = self.rooms[self.current_room]
         if 'items' in room and item in room['items']:
