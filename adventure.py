@@ -27,13 +27,17 @@ class TextAdventure:
 
         room_names = set()
         for room in game_map['rooms']:
-            if room['name'] in room_names:
+            room_name_words = room['name'].split()
+            room_name_tuple = tuple(room_name_words)
+            if room_name_tuple in room_names:
                 sys.exit("Duplicate room names found in map file.")
-            room_names.add(room['name'])
+            room_names.add(room_name_tuple)
 
         for room in game_map['rooms']:
             for exit_room in room['exits'].values():
-                if exit_room not in room_names:
+                exit_room_words = exit_room.split()
+                exit_room_tuple = tuple(exit_room_words)
+                if exit_room_tuple not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
     def display_room_info(self):
@@ -77,18 +81,14 @@ class TextAdventure:
                 else:
                     print("You've already been in this room. Try another direction or backtrack.")
             else:
-               
                 if self.visited_rooms:
                     prev_room = self.visited_rooms.pop()
-                    self.visited_rooms.add(self.current_room)
                     self.current_room = prev_room
                     self.display_room_info()
                 else:
-                    print("You can't go back any further.")
+                    print("You're back where you started.")
         else:
             print(f"There's no way to go {direction}.")
-    
-    
     
     def get(self, item):
         room = self.rooms[self.current_room]
