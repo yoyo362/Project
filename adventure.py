@@ -69,14 +69,22 @@ class TextAdventure:
         room = self.rooms[self.current_room]
         if direction in room['exits']:
             next_room = room['exits'][direction]
-            if next_room not in self.visited_rooms or next_room == self.current_room:
-                if self.current_room in self.visited_rooms:
-                    self.visited_rooms.remove(self.current_room)
-                self.visited_rooms.add(next_room)
-                self.current_room = next_room
-                self.display_room_info()
+            if next_room != self.current_room:
+                if next_room not in self.visited_rooms:
+                    self.visited_rooms.add(next_room)
+                    self.current_room = next_room
+                    self.display_room_info()
+                else:
+                    print("You've already been in this room. Try another direction or backtrack.")
             else:
-                print("You've already been in this room. Try another direction or backtrack.")
+               
+                if self.visited_rooms:
+                    prev_room = self.visited_rooms.pop()
+                    self.visited_rooms.add(self.current_room)
+                    self.current_room = prev_room
+                    self.display_room_info()
+                else:
+                    print("You can't go back any further.")
         else:
             print(f"There's no way to go {direction}.")
     
