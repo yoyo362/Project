@@ -6,22 +6,23 @@ class TextAdventure:
         self.map_file = map_file
         self.current_room = None
         self.inventory = []
-        self.rooms = {}
+        self.visited_rooms = set()  # Set to keep track of visited rooms
         self.load_map()
 
     def load_map(self):
-        try:
-            with open(self.map_file, 'r') as f:
+        with open(self.map_file, 'r') as f:
+            try:
                 game_map = json.load(f)
                 self.validate_map(game_map)
                 self.rooms = {room['name']: room for room in game_map['rooms']}
                 self.current_room = game_map['start']
-        except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
-            sys.exit(f"Error loading map: {e}")
+            except json.JSONDecodeError:
+                sys.exit("Invalid JSON format in map file.")
+            except KeyError:
+                sys.exit("Map file is missing required keys.")
 
     def validate_map(self, game_map):
-        required_keys = ['start', 'rooms']
-        if not all(key in game_map for key in required_keys):
+        if 'start' not in game_map or 'rooms' not in game_map:
             sys.exit("Map file is missing required keys.")
 
         room_names = set()
@@ -31,9 +32,9 @@ class TextAdventure:
             room_names.add(room['name'])
 
         for room in game_map['rooms']:
-            for direction, exit_room in room['exits'].items():
+            for exit_room in room['exits'].values():
                 if exit_room not in room_names:
-                    sys.exit(f"Invalid exit room '{exit_room}' in map file for room '{room['name']}'.")
+                    sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
@@ -52,7 +53,7 @@ class TextAdventure:
             self.get(command.split(' ', 1)[1])
         elif command.startswith('drop '):
             self.drop(command.split(' ', 1)[1])
-        elif command in ('inventory', 'inv'):
+        elif command == 'inventory' or command == 'inv':
             self.show_inventory()
         elif command == 'help':
             self.show_help()
@@ -60,15 +61,20 @@ class TextAdventure:
             print("Goodbye!")
             sys.exit()
         elif command in self.rooms[self.current_room]['exits']:
-            self.go(command)
+            self.go(command)  # Treat direction as a command to go
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
     def go(self, direction):
         room = self.rooms[self.current_room]
         if direction in room['exits']:
-            self.current_room = room['exits'][direction]
-            self.display_room_info()
+            next_room = room['exits'][direction]
+            if next_room not in self.visited_rooms:  # Check if the room has been visited
+                self.visited_rooms.add(self.current_room)  # Mark the current room as visited
+                self.current_room = next_room
+                self.display_room_info()
+            else:
+                print("You've already been in this room. Try another direction or backtrack.")
         else:
             print(f"There's no way to go {direction}.")
 
