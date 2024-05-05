@@ -9,6 +9,8 @@ class TextAdventure:
         self.visited_rooms = set()
         self.load_map()
 
+
+
     def load_map(self):
         with open(self.map_file, 'r') as f:
             try:
@@ -21,6 +23,7 @@ class TextAdventure:
             except KeyError:
                 sys.exit("Map file is missing required keys.")
 
+            
     def validate_map(self, game_map):
         if 'start' not in game_map or 'rooms' not in game_map:
             sys.exit("Map file is missing required keys.")
@@ -28,10 +31,18 @@ class TextAdventure:
         room_names = set()
         for room in game_map['rooms']:
             room_name = room['name']
-            room_names.add(room_name)
+            room_name_normalized = ' '.join(room_name.split())  # Replace all whitespace with a single space
+            if room_name_normalized in room_names:
+                sys.exit("Duplicate room names found in map file.")
+            room_names.add(room_name_normalized)
 
-            for exit_direction, exit_room in room['exits'].items():
-                if exit_room not in [room['name'] for room in game_map['rooms']]:
+            exit_rooms = set()
+            for exit_room in room['exits'].values():
+                exit_room_normalized = ' '.join(exit_room.split())  # Replace all whitespace with a single space
+                if exit_room_normalized in exit_rooms:
+                    sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
+                exit_rooms.add(exit_room_normalized)
+                if exit_room_normalized not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
     def display_room_info(self):
@@ -39,7 +50,7 @@ class TextAdventure:
         print(f"> {room['name']}\n\n{room['desc']}\n")
         if 'items' in room:
             print("Items:", ', '.join(room['items']))
-        print("\nExits:", ', '.join(room['exits'].keys()))
+        print("\nExits:", ', '.join(room['exits']))
         print("\nWhat would you like to do?")
 
     def process_command(self, command):
@@ -58,6 +69,8 @@ class TextAdventure:
         elif command == 'quit':
             print("Goodbye!")
             sys.exit()
+        elif command in self.rooms[self.current_room]['exits']:
+            self.go(command)
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
@@ -65,12 +78,23 @@ class TextAdventure:
         room = self.rooms[self.current_room]
         if direction in room['exits']:
             next_room = room['exits'][direction]
-            self.current_room = next_room
-            self.visited_rooms.add(next_room)
-            self.display_room_info()
+            if next_room != self.current_room:
+                if next_room not in self.visited_rooms:
+                    self.visited_rooms.add(next_room)
+                    self.current_room = next_room
+                    self.display_room_info()
+                else:
+                    print("You've already been in this room. Try another direction or backtrack.")
+            else:
+                if self.visited_rooms:
+                    prev_room = self.visited_rooms.pop()
+                    self.current_room = prev_room
+                    self.display_room_info()
+                else:
+                    print("You're back where you started.")
         else:
             print(f"There's no way to go {direction}.")
-
+    
     def get(self, item):
         room = self.rooms[self.current_room]
         if 'items' in room and item in room['items']:
@@ -83,8 +107,6 @@ class TextAdventure:
     def drop(self, item):
         if item in self.inventory:
             room = self.rooms[self.current_room]
-            if 'items' not in room:
-                room['items'] = []
             room['items'].append(item)
             self.inventory.remove(item)
             print(f"You drop the {item}.")
