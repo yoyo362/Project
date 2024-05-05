@@ -30,7 +30,7 @@ class TextAdventure:
 
         room_names = set()
         for room in game_map['rooms']:
-            room_name = room['name']
+            room_name = room['name'].strip()  # Strip leading/trailing whitespace
             room_name_normalized = ' '.join(room_name.split())  # Replace all whitespace with a single space
             if room_name_normalized in room_names:
                 sys.exit("Duplicate room names found in map file.")
@@ -38,12 +38,13 @@ class TextAdventure:
 
             exit_rooms = set()
             for exit_room in room['exits'].values():
-                exit_room_normalized = ' '.join(exit_room.split())  # Replace all whitespace with a single space
+                exit_room_normalized = ' '.join(exit_room.strip().split())  # Strip leading/trailing whitespace, replace all whitespace with a single space
                 if exit_room_normalized in exit_rooms:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
                 exit_rooms.add(exit_room_normalized)
                 if exit_room_normalized not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
+
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
