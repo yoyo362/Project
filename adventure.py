@@ -6,23 +6,23 @@ class TextAdventure:
         self.map_file = map_file
         self.current_room = None
         self.inventory = []
+        self.rooms = {}
         self.load_map()
 
     def load_map(self):
-        with open(self.map_file, 'r') as f:
-            try:
+        try:
+            with open(self.map_file, 'r') as f:
                 game_map = json.load(f)
                 self.validate_map(game_map)
                 self.rooms = {room['name']: room for room in game_map['rooms']}
                 self.current_room = game_map['start']
-            except (json.JSONDecodeError, KeyError) as e:
-                sys.exit(f"Error loading map: {e}")
+        except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
+            sys.exit(f"Error loading map: {e}")
 
     def validate_map(self, game_map):
         required_keys = ['start', 'rooms']
-        for key in required_keys:
-            if key not in game_map:
-                sys.exit(f"Map file is missing required key: {key}")
+        if not all(key in game_map for key in required_keys):
+            sys.exit("Map file is missing required keys.")
 
         room_names = set()
         for room in game_map['rooms']:
@@ -31,9 +31,9 @@ class TextAdventure:
             room_names.add(room['name'])
 
         for room in game_map['rooms']:
-            for exit_room in room['exits'].values():
+            for direction, exit_room in room['exits'].items():
                 if exit_room not in room_names:
-                    sys.exit(f"Invalid exit room '{exit_room}' in map file.")
+                    sys.exit(f"Invalid exit room '{exit_room}' in map file for room '{room['name']}'.")
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
@@ -60,7 +60,7 @@ class TextAdventure:
             print("Goodbye!")
             sys.exit()
         elif command in self.rooms[self.current_room]['exits']:
-            self.go(command)  # Treat direction as a command to go
+            self.go(command)
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
