@@ -27,22 +27,20 @@ class TextAdventure:
 
         room_names = set()
         for room in game_map['rooms']:
-            room_name = room['name'].strip()  # Strip leading/trailing whitespace
-            room_name_normalized = ' '.join(room_name.split())  # Replace all whitespace with a single space
+            room_name = room['name'].strip()
+            room_name_normalized = ' '.join(room_name.split())
             if room_name_normalized in room_names:
                 sys.exit("Duplicate room names found in map file.")
             room_names.add(room_name_normalized)
 
             exit_rooms = {}
             for exit_direction, exit_room in room['exits'].items():
-                exit_room_normalized = ' '.join(exit_room.strip().split())  # Strip leading/trailing whitespace, replace all whitespace with a single space
+                exit_room_normalized = ' '.join(exit_room.strip().split())
                 if exit_room_normalized in exit_rooms.values():
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
                 exit_rooms[exit_direction] = exit_room_normalized
 
-                # Check if the normalized exit room name exists in the set of room names
-                # or if it matches a room name after stripping leading/trailing whitespace
-                if exit_room_normalized not in room_names and all(exit_room_normalized != ' '.join((r.strip() + ' ').split()) for r in room_names) and not exit_room_normalized.isdigit():
+                if exit_room_normalized not in room_names and all(exit_room_normalized != ' '.join((r.strip() + ' ').split()) for r in room_names) and not exit_room_normalized.isdigit() and exit_room_normalized != '':
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         if ' '.join(game_map['start'].strip().split()) not in room_names:
@@ -81,9 +79,9 @@ class TextAdventure:
         room = self.rooms[self.current_room]
         if direction in room['exits']:
             next_room = room['exits'][direction]
-            next_room_normalized = ' '.join(next_room.strip().split())  # Strip leading/trailing whitespace and replace all whitespace with a single space
+            next_room_normalized = ' '.join(next_room.strip().split())
             if next_room_normalized in self.rooms:
-                next_room_normalized_current = ' '.join(self.current_room.split())  # Normalize the current room name
+                next_room_normalized_current = ' '.join(self.current_room.split())
                 if next_room_normalized != next_room_normalized_current:
                     if next_room_normalized not in self.visited_rooms:
                         self.visited_rooms.add(next_room_normalized)
@@ -97,7 +95,7 @@ class TextAdventure:
                         self.current_room = prev_room
                         self.display_room_info()
                     else:
-                        print("You're back where you started.")
+                        print("You can't go any further in this direction.")
             else:
                 print(f"There's no way to go {direction}.")
         else:
