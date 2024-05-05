@@ -27,17 +27,14 @@ class TextAdventure:
 
         room_names = set()
         for room in game_map['rooms']:
-            room_name_words = room['name'].split()
-            room_name_tuple = tuple(room_name_words)
-            if room_name_tuple in room_names:
+            room_name = ' '.join(room['name'].split())  
+            if room_name in room_names:
                 sys.exit("Duplicate room names found in map file.")
-            room_names.add(room_name_tuple)
+            room_names.add(room_name)
 
-        for room in game_map['rooms']:
             for exit_room in room['exits'].values():
-                exit_room_words = exit_room.split()
-                exit_room_tuple = tuple(exit_room_words)
-                if exit_room_tuple not in room_names:
+                exit_room_name = ' '.join(exit_room.split()) 
+                if exit_room_name not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
     def display_room_info(self):
