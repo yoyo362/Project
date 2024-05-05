@@ -23,25 +23,26 @@ class TextAdventure:
             except KeyError:
                 sys.exit("Map file is missing required keys.")
 
-        
+            
     def validate_map(self, game_map):
         if 'start' not in game_map or 'rooms' not in game_map:
             sys.exit("Map file is missing required keys.")
 
         room_names = set()
         for room in game_map['rooms']:
-            room_name = ' '.join(room['name'].split())  
-            if room_name in room_names:
+            room_name = room['name']
+            room_name_normalized = ' '.join(room_name.split())  # Replace all whitespace with a single space
+            if room_name_normalized in room_names:
                 sys.exit("Duplicate room names found in map file.")
-            room_names.add(room_name)
+            room_names.add(room_name_normalized)
 
             exit_rooms = set()
             for exit_room in room['exits'].values():
-                exit_room_name = ' '.join(exit_room.split())  
-                if exit_room_name in exit_rooms:
+                exit_room_normalized = ' '.join(exit_room.split())  # Replace all whitespace with a single space
+                if exit_room_normalized in exit_rooms:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
-                exit_rooms.add(exit_room_name)
-                if exit_room_name not in room_names:
+                exit_rooms.add(exit_room_normalized)
+                if exit_room_normalized not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
     def display_room_info(self):
