@@ -39,9 +39,9 @@ To ensure the correctness of the game engine, the following testing approach was
 
 
 ## Example of Difficult Issue and Resolution
-   In the game, players could use the "go" command to move between rooms, with the command structured as"go[direction]", for example. "go north" would move the player character to the romm in the north direction. Problem arose when players enteres commands with incorrect syntax, such as "go" without specifying the direction as said earlier. Due to this the game would crash with index out of range errors or errors produce confusing error messages.
+   In the game, players could use the "go" command to move between rooms, with the command structured as"go[direction]", for example. "go north" would move the player character to the romm in the north direction. Problem arose when players enters commands with incorrect syntax, such as "go" without specifying the direction as said earlier. Due to this the game would crash with index out of range errors or errors produce confusing error messages.
 
-   To change this I modified the process_command method to parse the "go" command and validate its syntax. I checked if the command started with "go" and if it contained a valid direction as its argument orelse it produced invalid command. Type "help" for a list of commands.
+   To change this I modified the process_command method to parse the "go" command and validate its syntax. I checked if the command started with "go" and if it contained a valid direction, as well as without the "go" command valid direction,  as its argument orelse it produced invalid command. Type "help" for a list of commands.
 
 
 

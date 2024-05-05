@@ -111,7 +111,7 @@ class TextAdventure:
     def play(self):
         self.display_room_info()
         while True:
-            command = input(">> ").lower()
+            command = input(">> ")
             self.process_command(command)
 
 if __name__ == "__main__":
