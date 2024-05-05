@@ -70,7 +70,9 @@ class TextAdventure:
         if direction in room['exits']:
             next_room = room['exits'][direction]
             if next_room not in self.visited_rooms:
-                self.visited_rooms.add(self.current_room)
+                self.visited_rooms.remove(self.current_room)
+                self.visited_rooms.add(next_room)
+                
                 self.current_room = next_room
                 self.display_room_info()
             else:
