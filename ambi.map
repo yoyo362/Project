@@ -1,0 +1,39 @@
+{
+  "start": "room1",
+  "rooms": [
+    {
+      "name": "room1",
+      "desc": "You are in a small room with a wooden table.",
+      "exits": {
+        "north": "room2",
+        "east": "room3"
+      },
+      "items": ["key"]
+    },
+    {
+      "name": "room2",
+      "desc": "Describe room2 here",
+      "exits": {
+        "south": "room1",
+        "east": "room4"
+      },
+      "items": []
+    },
+    {
+      "name": "room3",
+      "desc": "You are in a cozy bedroom.",
+      "exits": {
+        "west": "room1"
+      },
+      "items": ["book"]
+    },
+    {
+      "name": "room4",
+      "desc": "You are in a mysterious attic.",
+      "exits": {
+        "west": "room2"
+      },
+      "items": ["lantern"]
+    }
+  ]
+}
