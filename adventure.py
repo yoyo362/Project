@@ -12,9 +12,15 @@ class TextAdventure:
         try:
             with open(self.map_file, 'r') as f:
                 game_map = json.load(f)
+            if not game_map.get('rooms'):
+                print("Error: Map file does not contain any rooms.")
+                sys.exit(1)
+            if game_map['start'] not in [room['name'] for room in game_map['rooms']]:
+                print("Error: Start room not found in the map file.")
+                sys.exit(1)
             self.validate_map(game_map)
-            self.rooms = {room['name']: room for room in game_map['rooms']}
-            self.current_room = game_map['start']
+            self.rooms = {room['name'].strip(): room for room in game_map['rooms']}
+            self.current_room = game_map['start'].strip()
         except (json.JSONDecodeError, KeyError, ValueError) as e:
             print(f"Error loading map file: {e}")
             sys.exit(1)
@@ -25,20 +31,25 @@ class TextAdventure:
 
         room_names = set()
         for room in game_map['rooms']:
-            if room['name'] in room_names:
+            room_name = room['name'].strip()
+            if room_name in room_names:
                 raise ValueError("Duplicate room names found in map file.")
-            room_names.add(room['name'])
+            room_names.add(room_name)
+
+            print("Room:", room_name)  # Debugging print statement
 
             for exit_room in room['exits'].values():
+                exit_room = exit_room.strip()
+                print("Exit room:", exit_room)  # Debugging print statement
                 if exit_room not in room_names:
                     raise ValueError(f"Invalid exit room '{exit_room}' in map file.")
 
-            # Check for ambiguous exits
             exit_counts = {}
             for exit_name, exit_room in room['exits'].items():
+                exit_room = exit_room.strip()
                 exit_counts[exit_room] = exit_counts.get(exit_room, 0) + 1
                 if exit_counts[exit_room] > 1:
-                    raise ValueError(f"Ambiguous exits to '{exit_room}' in room '{room['name']}'")
+                    raise ValueError(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
