@@ -40,11 +40,9 @@ class TextAdventure:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
                 exit_rooms.add(exit_room_normalized)
 
-                if exit_room_normalized not in room_names:
-                    if exit_room_normalized.isdigit():
-                        continue
-                    else:
-                        print(f"Warning: Invalid exit room '{exit_room}' in room '{room_name}'")
+                if exit_room_normalized not in room_names and exit_room_normalized != '':
+                    if not exit_room_normalized.isdigit():
+                        sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         if game_map['start'].strip() not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
@@ -96,9 +94,8 @@ class TextAdventure:
                         self.display_room_info()
                     else:
                         print("You can't go any further in this direction.")
-            elif next_room_normalized.isdigit():
-                print(f"You exit from the game.")
-                sys.exit()
+            else:
+                print(f"There's no way to go {direction}.")
         else:
             print(f"There's no way to go {direction}.")
 
