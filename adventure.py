@@ -37,6 +37,8 @@ class TextAdventure:
                 exit_room_normalized = self.normalize_room_name(exit_room)
                 if exit_room_normalized in exit_rooms:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
+                if exit_room_normalized not in room_names and exit_room_normalized != '':
+                    sys.exit(f"Invalid exit room '{exit_room}' in map file.")
                 exit_rooms.add(exit_room_normalized)
 
         start_room_normalized = self.normalize_room_name(game_map['start'])
@@ -81,11 +83,19 @@ class TextAdventure:
             next_room = self.normalize_room_name(room['exits'][direction])
             if next_room in self.rooms:
                 if next_room != self.current_room:
-                    self.visited_rooms.append(self.current_room)
-                    self.current_room = next_room
-                    self.display_room_info()
+                    if next_room not in self.visited_rooms:
+                        self.visited_rooms.append(self.current_room)
+                        self.current_room = next_room
+                        self.display_room_info()
+                    else:
+                        print("You've already been in this room. Try another direction or backtrack.")
                 else:
-                    print("You're already in this room.")
+                    if self.visited_rooms:
+                        prev_room = self.visited_rooms.pop()
+                        self.current_room = prev_room
+                        self.display_room_info()
+                    else:
+                        print("You can't go any further in this direction.")
             else:
                 print(f"There's no way to go {direction}.")
         else:
