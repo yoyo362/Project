@@ -22,7 +22,7 @@ class TextAdventure:
                 sys.exit("Map file is missing required keys.")
 
     def validate_map(self, game_map):
-    if 'start' not in game_map or 'rooms' not in game_map:
+    if 'start' not in game_map or 'rooms' not in game_map: # type: ignore
         sys.exit("Map file is missing required keys.")
 
     room_names = set()
