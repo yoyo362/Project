@@ -1,6 +1,7 @@
 import json
 import sys
 
+
 class TextAdventure:
     def __init__(self, map_file):
         self.map_file = map_file
@@ -14,8 +15,8 @@ class TextAdventure:
             try:
                 game_map = json.load(f)
                 self.validate_map(game_map)
-                self.rooms = {room['name'].strip(): room for room in game_map['rooms']}
-                self.current_room = game_map['start'].strip()
+                self.rooms = {room['name']: room for room in game_map['rooms']}
+                self.current_room = game_map['start']
             except json.JSONDecodeError:
                 sys.exit("Invalid JSON format in map file.")
             except KeyError:
@@ -27,18 +28,16 @@ class TextAdventure:
 
         room_names = set()
         for room in game_map['rooms']:
-            room_name = room['name'].strip()
-            room_name_normalized = ' '.join(room_name.split())
-            if room_name_normalized in room_names:
+            room_name = room['name']
+            if room_name in room_names:
                 sys.exit("Duplicate room names found in map file.")
-            room_names.add(room_name_normalized)
+            room_names.add(room_name)
 
             for exit_direction, exit_room in room['exits'].items():
-                exit_room_normalized = ' '.join(exit_room.strip().split())
-                if exit_room_normalized and exit_room_normalized not in room_names:
-                    sys.exit(f"Invalid exit room '{exit_room_normalized}' in map file.")
+                if exit_room not in room_names:
+                    sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
-        if game_map['start'].strip() not in room_names:
+        if game_map['start'] not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
     def display_room_info(self):
@@ -65,8 +64,6 @@ class TextAdventure:
         elif command == 'quit':
             print("Goodbye!")
             sys.exit()
-        elif command in self.rooms[self.current_room]['exits']:
-            self.go(command)
         else:
             print("Invalid command. Type 'help' for a list of commands.")
 
@@ -74,27 +71,25 @@ class TextAdventure:
         room = self.rooms[self.current_room]
         if direction in room['exits']:
             next_room = room['exits'][direction]
-            next_room_normalized = ' '.join(next_room.strip().split())
-            if next_room_normalized in self.rooms:
+            if next_room in self.rooms:
                 self.visited_rooms.add(self.current_room)
-                self.current_room = next_room_normalized
+                self.current_room = next_room
                 self.display_room_info()
             else:
-                print(f"There's no room '{next_room_normalized}'.")
+                print(f"There's no room '{next_room}'.")
         else:
             print(f"There's no exit '{direction}' in this room.")
 
     def get(self, item):
         room = self.rooms[self.current_room]
-        if 'items' in room and item.strip() in room['items']:
-            self.inventory.append(item.strip())
-            room['items'].remove(item.strip())
+        if 'items' in room and item in room['items']:
+            self.inventory.append(item)
+            room['items'].remove(item)
             print(f"You pick up the {item}.")
         else:
             print(f"There's no {item} here.")
 
     def drop(self, item):
-        item = item.strip()
         if item in self.inventory:
             room = self.rooms[self.current_room]
             if 'items' not in room:
@@ -128,6 +123,7 @@ class TextAdventure:
         while True:
             command = input(">> ").lower()
             self.process_command(command)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
