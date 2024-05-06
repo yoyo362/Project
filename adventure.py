@@ -143,7 +143,7 @@ class TextAdventure:
             command = input(">> ").lower()
             self.process_command(command)
 
-if _name_ == "_main_":
+if __name__ == "_main_":
     if len(sys.argv) != 2:
         sys.exit("Usage: python3 adventure.py [map filename]")
     game = TextAdventure(sys.argv[1])
