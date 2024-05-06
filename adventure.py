@@ -35,11 +35,15 @@ class AdventureGame:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
     def move(self, direction):
-        exit_room = self.current_room['exits'].get(direction)
-        if exit_room:
-            self.current_room = self.rooms[exit_room]
+        exits = self.current_room.get('exits')
+        if exits and isinstance(exits, dict):
+            exit_room = exits.get(direction)
+            if exit_room:
+                self.current_room = self.rooms[exit_room]
+            else:
+                print("You can't go that way.")
         else:
-            print("You can't go that way.")
+            print("No valid exits found for this room.")
 
     def look(self):
         room = self.current_room
