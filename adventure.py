@@ -38,8 +38,9 @@ class TextAdventure:
                 if exit_room_normalized in exit_rooms:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
                 if exit_room_normalized not in room_names and exit_room_normalized != '':
+                    exit_rooms.add(exit_room_normalized)
+                else:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
-                exit_rooms.add(exit_room_normalized)
 
         start_room_normalized = self.normalize_room_name(game_map['start'])
         if start_room_normalized not in room_names:
