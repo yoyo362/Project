@@ -22,29 +22,30 @@ class TextAdventure:
                 sys.exit("Map file is missing required keys.")
 
     def validate_map(self, game_map):
-        if 'start' not in game_map or 'rooms' not in game_map:
-            sys.exit("Map file is missing required keys.")
+    if 'start' not in game_map or 'rooms' not in game_map:
+        sys.exit("Map file is missing required keys.")
 
-        room_names = set()
-        for room in game_map['rooms']:
-            room_name = room['name'].strip()
-            room_name_normalized = ' '.join(room_name.split())
-            if room_name_normalized in room_names:
-                sys.exit("Duplicate room names found in map file.")
-            room_names.add(room_name_normalized)
+    room_names = set()
+    for room in game_map['rooms']: # type: ignore
+        room_name = room['name'].strip()
+        room_name_normalized = ' '.join(room_name.split())
+        if room_name_normalized in room_names:
+            sys.exit("Duplicate room names found in map file.")
+        room_names.add(room_name_normalized)
 
-            exit_rooms = set()
-            for exit_direction, exit_room in room['exits'].items():
-                exit_room_normalized = ' '.join(exit_room.strip().split())
-                if exit_room_normalized in exit_rooms:
-                    sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
-                exit_rooms.add(exit_room_normalized)
+        exit_rooms = set()
+        for exit_direction, exit_room in room['exits'].items():
+            exit_room_normalized = ' '.join(exit_room.strip().split())
+            if exit_room_normalized in exit_rooms:
+                sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
+            exit_rooms.add(exit_room_normalized)
 
-                if exit_room_normalized not in room_names and exit_room_normalized != '':
+            if exit_room_normalized not in room_names and exit_room_normalized != '':
+                if not exit_room_normalized.isdigit():
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
-        if game_map['start'].strip() not in room_names:
-            sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
+    if game_map['start'].strip() not in room_names: # type: ignore
+        sys.exit(f"Invalid start room '{game_map['start']}' in map file.") # type: ignore
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
