@@ -42,7 +42,7 @@ class TextAdventure:
 
                 if exit_room_normalized not in room_names and exit_room_normalized != '':
                     if not exit_room_normalized.isdigit():
-                        print(f"Warning: Invalid exit room '{exit_room}' in room '{room_name}'")
+                        sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         if game_map['start'].strip() not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
@@ -82,12 +82,18 @@ class TextAdventure:
             next_room = room['exits'][direction]
             next_room_normalized = ' '.join(next_room.strip().split())
             if next_room_normalized in self.rooms:
-                self.visited_rooms.add(self.current_room)
-                self.current_room = next_room
-                self.display_room_info()
-            elif next_room_normalized.isdigit():
-                print(f"You exit from the game.")
-                sys.exit()
+                next_room_normalized_current = ' '.join(self.current_room.split())
+                if next_room_normalized != next_room_normalized_current:
+                    self.visited_rooms.add(self.current_room)
+                    self.current_room = next_room_normalized
+                    self.display_room_info()
+                else:
+                    if self.visited_rooms:
+                        prev_room = self.visited_rooms.pop()
+                        self.current_room = prev_room
+                        self.display_room_info()
+                    else:
+                        print("You can't go any further in this direction.")
             else:
                 print(f"There's no way to go {direction}.")
         else:
