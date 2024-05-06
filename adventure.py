@@ -41,9 +41,7 @@ class TextAdventure:
                 exit_rooms.add(exit_room_normalized)
 
                 if exit_room_normalized not in room_names and exit_room_normalized != '':
-                    if exit_room_normalized.isdigit():
-                        continue
-                    else:
+                    if not exit_room_normalized.isdigit():
                         print(f"Warning: Invalid exit room '{exit_room}' in room '{room_name}'")
 
         if game_map['start'].strip() not in room_names:
@@ -99,8 +97,6 @@ class TextAdventure:
             elif next_room_normalized.isdigit():
                 print(f"You exit from the game.")
                 sys.exit()
-            else:
-                print(f"There's no way to go {direction}.")
         else:
             print(f"There's no way to go {direction}.")
 
