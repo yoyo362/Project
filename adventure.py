@@ -33,100 +33,76 @@ class TextAdventure:
                 sys.exit("Duplicate room names found in map file.")
             room_names.add(room_name)
 
-            for exit_direction, exit_room in room['exits'].items():
+            for exit_room in room['exits'].values():
                 if exit_room not in room_names:
                     sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         if game_map['start'] not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
-    def display_room_info(self):
+    def move(self, direction):
+        if direction in self.rooms[self.current_room]['exits']:
+            self.current_room = self.rooms[self.current_room]['exits'][direction]
+            self.visited_rooms.add(self.current_room)
+            self.print_room_description()
+        else:
+            print("You can't go that way.")
+
+    def print_room_description(self):
         room = self.rooms[self.current_room]
-        print(f"> {room['name']}\n\n{room['desc']}\n")
+        print(room['desc'])
         if 'items' in room:
-            print("Items:", ', '.join(room['items']))
-        print("\nExits:", ', '.join(room['exits']))
-        print("\nWhat would you like to do?")
+            print("You see the following items in the room:")
+            for item in room['items']:
+                print(f"- {item}")
 
-    def process_command(self, command):
-        if command == 'look':
-            self.display_room_info()
-        elif command.startswith('go '):
-            self.go(command.split(' ', 1)[1])
-        elif command.startswith('get '):
-            self.get(command.split(' ', 1)[1])
-        elif command.startswith('drop '):
-            self.drop(command.split(' ', 1)[1])
-        elif command == 'inventory' or command == 'inv':
-            self.show_inventory()
-        elif command == 'help':
-            self.show_help()
-        elif command == 'quit':
-            print("Goodbye!")
-            sys.exit()
-        else:
-            print("Invalid command. Type 'help' for a list of commands.")
-
-    def go(self, direction):
+    def take_item(self, item_name):
         room = self.rooms[self.current_room]
-        if direction in room['exits']:
-            next_room = room['exits'][direction]
-            if next_room in self.rooms:
-                self.visited_rooms.add(self.current_room)
-                self.current_room = next_room
-                self.display_room_info()
-            else:
-                print(f"There's no room '{next_room}'.")
+        if 'items' in room and item_name in room['items']:
+            self.inventory.append(item_name)
+            room['items'].remove(item_name)
+            print(f"You took the {item_name}.")
         else:
-            print(f"There's no exit '{direction}' in this room.")
+            print("There is no such item here.")
 
-    def get(self, item):
-        room = self.rooms[self.current_room]
-        if 'items' in room and item in room['items']:
-            self.inventory.append(item)
-            room['items'].remove(item)
-            print(f"You pick up the {item}.")
+    def drop_item(self, item_name):
+        if item_name in self.inventory:
+            self.inventory.remove(item_name)
+            self.rooms[self.current_room].setdefault('items', []).append(item_name)
+            print(f"You dropped the {item_name}.")
         else:
-            print(f"There's no {item} here.")
+            print("You don't have that item.")
 
-    def drop(self, item):
-        if item in self.inventory:
-            room = self.rooms[self.current_room]
-            if 'items' not in room:
-                room['items'] = []
-            room['items'].append(item)
-            self.inventory.remove(item)
-            print(f"You drop the {item}.")
-        else:
-            print(f"You don't have {item} in your inventory.")
-
-    def show_inventory(self):
+    def print_inventory(self):
         if self.inventory:
-            print("Inventory:")
+            print("You are carrying the following items:")
             for item in self.inventory:
-                print(f"  {item}")
+                print(f"- {item}")
         else:
-            print("You're not carrying anything.")
+            print("You are not carrying any items.")
 
-    def show_help(self):
-        print("Commands:")
-        print("  look: Look around the current room.")
-        print("  go [direction]: Move to the room in the specified direction.")
-        print("  get [item]: Pick up an item in the current room.")
-        print("  drop [item]: Drop an item from your inventory into the current room.")
-        print("  inventory: View your inventory.")
-        print("  help: Display this help message.")
-        print("  quit: Quit the game.")
-
-    def play(self):
-        self.display_room_info()
-        while True:
-            command = input(">> ").lower()
-            self.process_command(command)
+    def quit_game(self):
+        print("Goodbye!")
+        sys.exit()
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python3 adventure.py [map filename]")
-    game = TextAdventure(sys.argv[1])
-    game.play()
+    adventure = TextAdventure("json.map")
+    adventure.print_room_description()
+    while True:
+        command = input("What would you like to do? ").strip().lower()
+        if command.startswith("go "):
+            direction = command[3:]
+            adventure.move(direction)
+        elif command.startswith("get ") or command.startswith("take "):
+            item_name = command[4:]
+            adventure.take_item(item_name)
+        elif command.startswith("drop "):
+            item_name = command[5:]
+            adventure.drop_item(item_name)
+        elif command == "inventory":
+            adventure.print_inventory()
+        elif command == "quit":
+            adventure.quit_game()
+        else:
+            print("Invalid command.")
