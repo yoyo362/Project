@@ -76,22 +76,13 @@ class TextAdventure:
             next_room = room['exits'][direction]
             next_room_normalized = ' '.join(next_room.strip().split())
             if next_room_normalized in self.rooms:
-                next_room_normalized_current = ' '.join(self.current_room.split())
-                if next_room_normalized != next_room_normalized_current:
-                    self.visited_rooms.add(self.current_room)
-                    self.current_room = next_room_normalized
-                    self.display_room_info()
-                else:
-                    if self.visited_rooms:
-                        prev_room = self.visited_rooms.pop()
-                        self.current_room = prev_room
-                        self.display_room_info()
-                    else:
-                        print("You can't go any further in this direction.")
+                self.visited_rooms.add(self.current_room)
+                self.current_room = next_room_normalized
+                self.display_room_info()
             else:
-                print(f"There's no way to go {direction}.")
+                print(f"There's no room '{next_room_normalized}'.")
         else:
-            print(f"There's no way to go {direction}.")
+            print(f"There's no exit '{direction}' in this room.")
 
     def get(self, item):
         room = self.rooms[self.current_room]
