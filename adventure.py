@@ -1,9 +1,5 @@
 import json
 import sys
-from typing import Optional
-
-class TextAdventureError(Exception):
-    pass
 
 class TextAdventure:
     def __init__(self, map_file):
@@ -14,42 +10,42 @@ class TextAdventure:
         self.load_map()
 
     def load_map(self):
-        try:
-            with open(self.map_file, 'r') as f:
+        with open(self.map_file, 'r') as f:
+            try:
                 game_map = json.load(f)
-            self.validate_map(game_map)
-            self.rooms = {self.normalize_room_name(room['name']): room for room in game_map['rooms']}
-            self.current_room = self.normalize_room_name(game_map['start'])
-        except json.JSONDecodeError:
-            raise TextAdventureError("Invalid JSON format in map file.")
-        except KeyError:
-            raise TextAdventureError("Map file is missing required keys.")
+                self.validate_map(game_map)
+                self.rooms = {self.normalize_room_name(room['name']): room for room in game_map['rooms']}
+                self.current_room = self.normalize_room_name(game_map['start'])
+            except json.JSONDecodeError:
+                sys.exit("Invalid JSON format in map file.")
+            except KeyError:
+                sys.exit("Map file is missing required keys.")
 
     def validate_map(self, game_map):
         if 'start' not in game_map or 'rooms' not in game_map:
-            raise TextAdventureError("Map file is missing required keys.")
+            sys.exit("Map file is missing required keys.")
 
         room_names = set()
         for room in game_map['rooms']:
             room_name = self.normalize_room_name(room['name'])
             if room_name in room_names:
-                raise TextAdventureError("Duplicate room names found in map file.")
+                sys.exit("Duplicate room names found in map file.")
             room_names.add(room_name)
 
             exit_rooms = set()
             for exit_direction, exit_room in room['exits'].items():
                 exit_room_normalized = self.normalize_room_name(exit_room)
                 if exit_room_normalized in exit_rooms:
-                    raise TextAdventureError(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
+                    sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
                 if exit_room_normalized not in room_names:
                     if exit_room_normalized != '':
                         exit_rooms.add(exit_room_normalized)
                     else:
-                        raise TextAdventureError(f"Invalid exit room '{exit_room}' in map file.")
+                        sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         start_room_normalized = self.normalize_room_name(game_map['start'])
         if start_room_normalized not in room_names:
-            raise TextAdventureError(f"Invalid start room '{game_map['start']}' in map file.")
+            sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
     def normalize_room_name(self, room_name):
         if len(room_name.strip()) == 1:
@@ -59,11 +55,11 @@ class TextAdventure:
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
-        output = f"> {room['name'].strip()}\n\n{room['desc']}\n"
+        print(f"> {room['name'].strip()}\n\n{room['desc']}\n")
         if 'items' in room:
-            output += f"Items: {', '.join(room['items'])}\n"
-        output += f"\nExits: {', '.join(room['exits'])}\n\nWhat would you like to do?"
-        print(output)
+            print("Items:", ', '.join(room['items']))
+        print("\nExits:", ', '.join(room['exits']))
+        print("\nWhat would you like to do?")
 
     def process_command(self, command):
         if command == 'look':
@@ -152,22 +148,8 @@ class TextAdventure:
             command = input(">> ").lower()
             self.process_command(command)
 
-def main(map_file: Optional[str] = None):
-    if map_file is None:
-        if len(sys.argv) != 2:
-            print("Usage: python3 adventure.py [map filename]", file=sys.stderr)
-            sys.exit(1)
-        map_file = sys.argv[1]
-
-    try:
-        game = TextAdventure(map_file)
-        game.play()
-    except TextAdventureError as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
-
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) != 2:
+        sys.exit("Usage: python3 adventure.py [map filename]")
+    game = TextAdventure(sys.argv[1])
+    game.play()
