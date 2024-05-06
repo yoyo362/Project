@@ -47,7 +47,7 @@ class TextAdventure:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
     def normalize_room_name(self, room_name):
-        return ' '.join(room_name.replace('  ', ' ').strip().lower().split())
+        return ' '.join(room_name.strip().split())
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
