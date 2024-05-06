@@ -37,21 +37,17 @@ class TextAdventure:
                 exit_room_normalized = self.normalize_room_name(exit_room)
                 if exit_room_normalized in exit_rooms:
                     sys.exit(f"Ambiguous exits to '{exit_room}' in room '{room_name}'")
-                if exit_room_normalized not in room_names:
-                    if exit_room_normalized != '':
-                        exit_rooms.add(exit_room_normalized)
-                    else:
-                        sys.exit(f"Invalid exit room '{exit_room}' in map file.")
+                if exit_room_normalized not in room_names and exit_room_normalized != '':
+                    exit_rooms.add(exit_room_normalized)
+                else:
+                    sys.exit(f"Invalid exit room '{exit_room}' in map file.")
 
         start_room_normalized = self.normalize_room_name(game_map['start'])
         if start_room_normalized not in room_names:
             sys.exit(f"Invalid start room '{game_map['start']}' in map file.")
 
     def normalize_room_name(self, room_name):
-        if len(room_name.strip()) == 1:
-            return room_name.strip()
-        else:
-            return ' '.join(room_name.strip().split())
+        return ' '.join(room_name.strip().split())
 
     def display_room_info(self):
         room = self.rooms[self.current_room]
