@@ -2,7 +2,7 @@ import json
 import sys
 
 class TextAdventure:
-    def _init_(self, map_file):
+    def __init__(self, map_file):
         self.map_file = map_file
         self.current_room = None
         self.inventory = []
@@ -133,7 +133,7 @@ class TextAdventure:
             command = input(">> ").lower()
             self.process_command(command)
 
-if __name__ == "_main_": 
+if __name__ == "__main__":
     if len(sys.argv) != 2:
         sys.exit("Usage: python3 adventure.py [map filename]")
     game = TextAdventure(sys.argv[1])
